@@ -3,9 +3,12 @@ const lorem = `Lorem ipsum, dolor sit amet consectetur adipisicing elit. Magni a
 let input = []
 let objectiveText = []
 let actualText = []
-let objective = document.querySelector("#objective")
 let pointer = 0
 let lastKeyPress = 0
+let line = 0;
+
+const objective = document.querySelector("#objective")
+const htmlPointer = document.querySelector("#pointer")
 
 const afkDefault = 2000;
 
@@ -14,7 +17,7 @@ fetch("./words.json").then(r => {
     r.json().then((json) => {
         words = json
 
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 50; i++) {
             objectiveText.push(words[ parseInt(Math.random() * words.length - 1) ])
         }
 
@@ -30,6 +33,7 @@ fetch("./words.json").then(r => {
 })
 
 function pointerPos() {
+    autoScroll()
     let lastWord = objective.children[ objective.children.length - 1 ]
     let charPos;
     let x, y;
@@ -37,13 +41,13 @@ function pointerPos() {
     if (!lastWord) {
         charPos = objective.getBoundingClientRect()
 
-        x = charPos.left - 1
+        x = charPos.left - 2
         y = charPos.top + 1
     } else {
         let lastChar = lastWord.children[ lastWord.children.length - 1 ]
 
         charPos = lastChar.getBoundingClientRect();
-        x = charPos.left + charPos.width - 1
+        x = charPos.left + charPos.width - 2
         y = charPos.top - 3
     }
 
@@ -51,8 +55,8 @@ function pointerPos() {
         x += 16
     }
 
-    document.querySelector('#pointer').style.left = `${x}px`
-    document.querySelector('#pointer').style.top = `${y}px`
+    htmlPointer.style.left = `${x}px`
+    htmlPointer.style.top = `${y}px`
 }
 
 function wordMatch(w1, w2) {
@@ -134,6 +138,7 @@ function restart() {
     objectiveText = []
     actualText = []
     pointer = 0
+    line = 0
 
     for (let i = 0; i < 30; i++) {
         objectiveText.push(words[ parseInt(Math.random() * words.length - 1) ])
@@ -164,15 +169,11 @@ document.addEventListener('keydown', (e) => {
     }
 })
 
-const htmlPointer = document.querySelector("#pointer")
 
 function afkCheck() {
-    console.log(new Date().getTime() - lastKeyPress);
     if (new Date().getTime() - lastKeyPress >= afkDefault) {
-        console.log("oi")
         if (!htmlPointer.classList.contains("afk")) htmlPointer.classList.add("afk")
     } else {
-        console.log("oiaa")
         if (htmlPointer.classList.contains("afk")) htmlPointer.classList.remove("afk")
     }
 }
@@ -180,3 +181,21 @@ function afkCheck() {
 setInterval(() => {
     afkCheck()
 }, 1000);
+
+function autoScroll() {
+    let objectiveBoundaries = objective.getBoundingClientRect()
+    let pointerBoundaries = htmlPointer.getBoundingClientRect()
+
+    let lineHeight = objectiveBoundaries.height / 3
+    let objectiveY = objectiveBoundaries.top + 1
+    let pointerY = pointerBoundaries.top
+
+    let currentLine = Math.abs(Math.ceil((pointerY - objectiveY) / lineHeight))
+    if (currentLine == 2){
+        console.log('KLJSDAJKSD');
+        objective.scroll(0, 40 * (line-1))
+        line++
+    }
+
+    console.log(pointerY, objectiveY, lineHeight, currentLine, line);
+}

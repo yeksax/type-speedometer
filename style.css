@@ -30,8 +30,13 @@ body {
     line-height: 2rem;
     height: 6rem;
     overflow-y: hidden;
-    letter-spacing: 4px;
+    /* letter-spacing: 4px; */
     padding: 0 4px;
+    font-weight: 500;
+    width: 100%;
+    text-overflow: clip;
+    word-wrap: break-word;
+    scroll-behavior: smooth;
 }
 
 .correct {
@@ -75,13 +80,13 @@ i {
 #pointer {
     position: absolute;
     background-color: #6247c7;
-    width: 2px;
+    width: 3px;
     border-radius: 2px;
     height: 2rem;
     z-index: -1;
     left: 0;
     animation: blink 2s ease-in-out infinite;
-    transition: all .1s ease-in-out 0s;
+    transition: all .01s ease-in-out 0s;
 }
 
 #pointer.afk {
