@@ -30,7 +30,7 @@ body {
     line-height: 2rem;
     height: 6rem;
     overflow-y: hidden;
-    letter-spacing: 3px;
+    letter-spacing: 4px;
     padding: 0 4px;
 }
 
@@ -72,10 +72,10 @@ i {
     font-size: .9rem;
 }
 
-#pointer{
+#pointer {
     position: absolute;
     background-color: #6247c7;
-    width: 4px;
+    width: 2px;
     border-radius: 2px;
     height: 2rem;
     z-index: -1;
@@ -84,14 +84,34 @@ i {
     transition: all .1s ease-in-out 0s;
 }
 
+#pointer.afk {
+    animation: cursor-blink 1s ease-in-out infinite;
+}
+
 @keyframes blink {
-    0%{
+    0% {
         background-color: hsl(253, 53%, 53%);
     }
+
     50% {
         background-color: hsl(253, 53%, 60%);
     }
-    100%{
+
+    100% {
         background-color: hsl(253, 53%, 53%);
+    }
+}
+
+@keyframes cursor-blink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .1;
+    }
+
+    100% {
+        opacity: 1;
     }
 }

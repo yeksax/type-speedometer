@@ -5,6 +5,9 @@ let objectiveText = []
 let actualText = []
 let objective = document.querySelector("#objective")
 let pointer = 0
+let lastKeyPress = 0
+
+const afkDefault = 2000;
 
 let words;
 fetch("./words.json").then(r => {
@@ -109,6 +112,7 @@ document.addEventListener("keydown", (e) => {
     } else {
         if (e.key.length == 1) {
             input[ pointer ] += e.key
+            lastKeyPress = new Date().getTime()
         }
     }
 
@@ -159,3 +163,20 @@ document.addEventListener('keydown', (e) => {
         keybind = 0
     }
 })
+
+const htmlPointer = document.querySelector("#pointer")
+
+function afkCheck() {
+    console.log(new Date().getTime() - lastKeyPress);
+    if (new Date().getTime() - lastKeyPress >= afkDefault) {
+        console.log("oi")
+        if (!htmlPointer.classList.contains("afk")) htmlPointer.classList.add("afk")
+    } else {
+        console.log("oiaa")
+        if (htmlPointer.classList.contains("afk")) htmlPointer.classList.remove("afk")
+    }
+}
+
+setInterval(() => {
+    afkCheck()
+}, 1000);
