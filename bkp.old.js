@@ -1,49 +1,48 @@
 const lorem = `Lorem ipsum, dolor sit amet consectetur adipisicing elit. Magni ad voluptates aperiam suscipit eveniet consequatur in eos earum assumenda dolor excepturi omnis officia facilis ullam repudiandae, cum modi esse quas.`
 
-let input = []
-let objectiveText = []
-let actualText = []
-let pointer = 0
-let lastKeyPress = 0
+let input;
+let objectiveText;
+let actualText;
+let pointer;
+let lastKeyPres;
 let currentLine;
 
 const objective = document.querySelector("#objective")
 const htmlPointer = document.querySelector("#pointer")
 const lineHeight = Math.round(objective.getBoundingClientRect().height / 3)
 
-const afkDefault = 2000;
+const afkDefault = 5000;
+
+init()
 
 let words;
 fetch("./words.json").then(r => {
     r.json().then((json) => {
         words = json
-        init()
 
+        for (let i = 0; i < 50; i++) {
+            objectiveText.push(words[ parseInt(Math.random() * words.length - 1) ])
+        }
+
+        objective.innerHTML = objectiveText.join(" ")
+
+        for (let i = 0; i < objectiveText.length; i++) {
+            input.push("")
+            actualText.push("")
+        }
+
+        pointerPos()
     })
 })
 
 function init() {
-
     input = []
     objectiveText = []
     actualText = []
     pointer = 0
-    lastKeyPress = 0
-    currentLine;
-
-    for (let i = 0; i < 100; i++) {
-        objectiveText.push(words[ parseInt(Math.random() * words.length - 1) ])
-    }
-
-    objective.innerHTML = objectiveText.join(" ")
-
-    for (let i = 0; i < objectiveText.length; i++) {
-        input.push("")
-        actualText.push("")
-    }
-
-    pointerPos()
-    objective.scroll(0, 0)
+    lastKeyPress = new Date().getTime()
+    currentLine = 0
+    objective.scrollTo(0, 0)
 }
 
 function pointerPos() {
@@ -55,21 +54,36 @@ function pointerPos() {
         charPos = objective.getBoundingClientRect()
 
         x = charPos.left - 2
-        y = charPos.top + 1
+        y = charPos.top
     } else {
+
+
+        if (currentLine >= 2) {
+            currentLine = 1
+        }
+
         let lastChar = lastWord.children[ lastWord.children.length - 1 ]
 
-        charPos = lastChar.getBoundingClientRect();
-        x = charPos.left + charPos.width - 2
-        y = charPos.top - 3
+        let objvBounds = objective.getBoundingClientRect();
+        let charBound = lastChar.getBoundingClientRect();
+
+        currentLine = Math.abs(Math.ceil((objvBounds.top - charBound.top) / lineHeight))
+
+        x = charBound.left + charBound.width - 2
+        y = objvBounds.top + (lineHeight * currentLine)
+
+        console.log(`current ${currentLine}\ntotal ${line}\nycont ${objvBounds.top}\nychar ${charBound.top}`);
     }
 
     if (lastWord && input[ pointer ].length == 0) {
-        x += 16
+        x += 20
     }
 
     htmlPointer.style.left = `${x}px`
     htmlPointer.style.top = `${y}px`
+
+    autoScroll()
+
 }
 
 function wordMatch(w1, w2) {
@@ -128,6 +142,7 @@ document.addEventListener("keydown", (e) => {
         }
     } else {
         if (e.key.length == 1) {
+            afkCheck()
             input[ pointer ] += e.key
             lastKeyPress = new Date().getTime()
         }
@@ -143,11 +158,15 @@ document.addEventListener("keydown", (e) => {
 
     objective.innerHTML = actualText.join(" ")
 
+    pointerPos()
     autoScroll()
+
 })
 
 function restart() {
-    for (let i = 0; i < 100; i++) {
+    init()
+
+    for (let i = 0; i < 30; i++) {
         objectiveText.push(words[ parseInt(Math.random() * words.length - 1) ])
     }
 
@@ -159,24 +178,31 @@ function restart() {
     }
 
     document.querySelector("#restart").blur()
+    document.querySelector("body").focus()
 
-    init()
     pointerPos()
 }
+
+let keybind = 0
 
 document.addEventListener('keydown', (e) => {
     if (e.key == "Tab") {
         e.preventDefault()
-        document.querySelector("#restart").focus()
+        if (document.activeElement == document.querySelector("#restart")) {
+            document.querySelector("#restart").blur()
+        } else {
+            document.querySelector("#restart").focus()
+        }
     }
 })
 
-
 function afkCheck() {
     if (new Date().getTime() - lastKeyPress >= afkDefault) {
-        if (!htmlPointer.classList.contains("afk")) htmlPointer.classList.add("afk")
+        htmlPointer.classList.add("afk")
+        objective.classList.add("afk")
     } else {
-        if (htmlPointer.classList.contains("afk")) htmlPointer.classList.remove("afk")
+        htmlPointer.classList.remove("afk")
+        objective.classList.remove("afk")
     }
 }
 
@@ -185,18 +211,5 @@ setInterval(() => {
 }, 1000);
 
 function autoScroll() {
-    let lastWord = objective.children[ objective.children.length - 1 ]
-    let lastChar = objective.children[ objective.children.length - 1 ]
-
-    if (!lastWord) {
-        lastChar = 0
-    } else {
-        lastChar = lastWord.children[ lastWord.children.length - 1 ].offsetTop
-    }
-
-    y = lastChar
-
-    objective.scrollTo(0, y - (lineHeight))
-
-    pointerPos()
+    objective.scroll(0, lineHeight * (currentLine))
 }
