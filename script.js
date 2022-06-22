@@ -15,7 +15,13 @@ let pointer;
 
 init(50)
 
-$(document).on('keydown', e => keyHandler(e))
+$(document).on('keydown', e => {
+    if(e.key == "Tab"){
+        e.preventDefault()
+        $("#restart").focus()
+    }
+    keyHandler(e)
+})
 
 function init(wordQuantity) {
     htmlObjective = []
@@ -34,6 +40,7 @@ function init(wordQuantity) {
     htmlText.html(htmlObjective.join(" "))
     lineHeight = $(htmlText.children()[ 0 ]).height()
     autoScroll()
+    $("#restart").blur()
 }
 
 // Trata de todos inputs 
